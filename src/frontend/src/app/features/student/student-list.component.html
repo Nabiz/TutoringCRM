@@ -1,0 +1,11 @@
+<h1>Lista uczniów</h1>
+
+<ul>
+  @for (student of students(); track student.id) {
+    <li>
+      {{ student.firstName }} {{ student.lastName }} (Klasa: {{ student.grade }})
+    </li>
+  } @empty {
+    <li>Brak uczniów.</li>
+  }
+</ul>

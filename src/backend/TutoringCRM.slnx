@@ -1,0 +1,6 @@
+<Solution>
+  <Project Path="TutoringCRM.API/TutoringCRM.API.csproj" />
+  <Project Path="TutoringCRM.Application/TutoringCRM.Application.csproj" />
+  <Project Path="TutoringCRM.Domain/TutoringCRM.Domain.csproj" />
+  <Project Path="TutoringCRM.Infrastructure/TutoringCRM.Infrastructure.csproj" />
+</Solution>
