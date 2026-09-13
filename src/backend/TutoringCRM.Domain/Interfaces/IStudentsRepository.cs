@@ -6,5 +6,6 @@ namespace TutoringCRM.Domain.Interfaces;
 public interface IStudentsRepository
 {
     IEnumerable<Student> GetAll();
-    Student? GetById(string id);
+    Student? GetById(int id);
+    void Add(Student student);
 }

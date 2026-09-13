@@ -3,6 +3,7 @@ using System.Linq;
 using TutoringCRM.Application.DTOs;
 using TutoringCRM.Application.Interfaces;
 using TutoringCRM.Domain.Interfaces;
+using TutoringCRM.Domain.Entities;
 
 namespace TutoringCRM.Application.Services;
 
@@ -28,7 +29,7 @@ public class StudentsService : IStudentsService
         });
     }
 
-    public StudentDto? GetStudentById(string id)
+    public StudentDto? GetStudentById(int id)
     {
         var student = _studentsRepository.GetById(id);
 
@@ -36,6 +37,27 @@ public class StudentsService : IStudentsService
         {
             return null;
         }
+
+        return new StudentDto
+        {
+            Id = student.Id,
+            FirstName = student.FirstName,
+            LastName = student.LastName,
+            Grade = student.Grade
+        };
+    }
+
+public async Task<StudentDto> CreateStudentAsync(CreateStudentDto createDto)
+    {
+        var student = new Student
+        {
+            Id = 0,
+            FirstName = createDto.FirstName,
+            LastName = createDto.LastName,
+            Grade = createDto.Grade
+        };
+
+        _studentsRepository.Add(student);
 
         return new StudentDto
         {

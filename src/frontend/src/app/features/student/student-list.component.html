@@ -1,5 +1,24 @@
 <h1>Lista uczniów</h1>
 
+<form (ngSubmit)="onSubmit()" #studentFormRef="ngForm">
+  <div>
+    <label for="firstName">Imie</label>
+    <input id="firstName" name="firstName" type="text" [(ngModel)]="studentForm.firstName" required />
+  </div>
+
+  <div>
+    <label for="lastName">Nazwisko</label>
+    <input id="lastName" name="lastName" type="text" [(ngModel)]="studentForm.lastName" required />
+  </div>
+
+  <div>
+    <label for="grade">Klasa</label>
+    <input id="grade" name="grade" type="number" min="1" [(ngModel)]="studentForm.grade" required />
+  </div>
+
+  <button type="submit" [disabled]="!studentFormRef.form.valid">Dodaj ucznia</button>
+</form>
+
 <ul>
   @for (student of students(); track student.id) {
     <li>

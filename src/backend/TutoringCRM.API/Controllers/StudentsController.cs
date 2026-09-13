@@ -1,5 +1,6 @@
 using Microsoft.AspNetCore.Mvc;
 using TutoringCRM.Application.Interfaces;
+using TutoringCRM.Application.DTOs;
 
 namespace TutoringCRM.API.Controllers;
 
@@ -21,8 +22,8 @@ public class StudentsController : ControllerBase
         return Ok(students);
     }
 
-    [HttpGet("{id}")]
-    public IActionResult GetById(string id)
+    [HttpGet("{id:int}")]
+    public IActionResult GetById(int id)
     {
         var student = _studentsService.GetStudentById(id);
         
@@ -32,5 +33,12 @@ public class StudentsController : ControllerBase
         }
 
         return Ok(student);
+    }
+
+    [HttpPost]
+    public async Task<ActionResult<StudentDto>> CreateStudent([FromBody] CreateStudentDto createStudentDto)
+    {
+        var studentDto = await _studentsService.CreateStudentAsync(createStudentDto);
+        return CreatedAtAction(nameof(GetById), new { id = studentDto.Id }, studentDto);
     }
 }

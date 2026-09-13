@@ -20,8 +20,13 @@ public class StudentsRepository : IStudentsRepository
         return _dbContext.Students.ToList();
     }
 
-    public Student? GetById(string id)
+    public Student? GetById(int id)
     {
         return _dbContext.Students.FirstOrDefault(s => s.Id == id);
+    }
+    public void Add(Student student)
+    {
+        _dbContext.Students.Add(student);
+        _dbContext.SaveChanges();
     }
 }
