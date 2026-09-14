@@ -1,0 +1,55 @@
+<h1>Lista lekcji</h1>
+
+<form (ngSubmit)="onSubmit()" #lessonFormRef="ngForm">
+  <div>
+    <label for="lessonDate">Data i godzina</label>
+    <input id="lessonDate" name="date" type="datetime-local" [(ngModel)]="lessonForm.date" required />
+  </div>
+
+  <div>
+    <label for="durationInMinutes">Czas trwania (minuty)</label>
+    <input
+      id="durationInMinutes"
+      name="durationInMinutes"
+      type="number"
+      min="1"
+      [(ngModel)]="lessonForm.durationInMinutes"
+      required
+    />
+  </div>
+
+  <div>
+    <label for="lessonMode">Tryb</label>
+    <select id="lessonMode" name="mode" [(ngModel)]="lessonForm.mode" required>
+      <option value="Online">Online</option>
+      <option value="AtTutor">U tutor</option>
+      <option value="AtStudent">U ucznia</option>
+    </select>
+  </div>
+
+  <div>
+    <label for="studentId">ID ucznia</label>
+    <input id="studentId" name="studentId" type="number" min="1" [(ngModel)]="lessonForm.studentId" required />
+  </div>
+
+  <div>
+    <label>
+      <input type="checkbox" name="isPaid" [(ngModel)]="lessonForm.isPaid" />
+      Opłacona
+    </label>
+  </div>
+
+  <button type="submit" [disabled]="!lessonFormRef.form.valid">Dodaj lekcję</button>
+</form>
+
+<ul>
+  @for (lesson of lessons(); track lesson.id) {
+    <li>
+      {{ lesson.date | date:'dd.MM.yyyy HH:mm' }} • {{ lesson.durationInMinutes }} min •
+      {{ getModeLabel(lesson.mode) }} •
+      {{ lesson.isPaid ? 'Opłacona' : 'Nieopłacona' }} • Student ID: {{ lesson.studentId }}
+    </li>
+  } @empty {
+    <li>Brak lekcji.</li>
+  }
+</ul>
