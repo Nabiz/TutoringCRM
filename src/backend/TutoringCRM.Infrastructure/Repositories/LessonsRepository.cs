@@ -20,6 +20,13 @@ public class LessonsRepository : ILessonsRepository
         return _dbContext.Lessons.ToList();
     }
 
+    public IEnumerable<Lesson> GetByStudentId(int studentId)
+    {
+        return _dbContext.Lessons
+            .Where(lesson => lesson.StudentId == studentId)
+            .ToList();
+    }
+
     public Lesson? GetById(int id)
     {
         return _dbContext.Lessons.FirstOrDefault(l => l.Id == id);

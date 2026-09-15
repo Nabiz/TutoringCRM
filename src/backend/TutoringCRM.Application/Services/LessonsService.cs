@@ -31,6 +31,21 @@ public class LessonsService : ILessonsService
         });
     }
 
+    public IEnumerable<LessonDto> GetLessonsByStudentId(int studentId)
+    {
+        var lessons = _lessonsRepository.GetByStudentId(studentId);
+
+        return lessons.Select(lesson => new LessonDto
+        {
+            Id = lesson.Id,
+            Date = lesson.Date,
+            DurationInMinutes = lesson.DurationInMinutes,
+            Mode = lesson.Mode,
+            IsPaid = lesson.IsPaid,
+            StudentId = lesson.StudentId
+        });
+    }
+
     public LessonDto? GetLessonById(int id)
     {
         var lesson = _lessonsRepository.GetById(id);

@@ -9,10 +9,12 @@ namespace TutoringCRM.API.Controllers;
 public class StudentsController : ControllerBase
 {
     private readonly IStudentsService _studentsService;
+    private readonly ILessonsService _lessonsService;
 
-    public StudentsController(IStudentsService studentsService)
+    public StudentsController(IStudentsService studentsService, ILessonsService lessonsService)
     {
         _studentsService = studentsService;
+        _lessonsService = lessonsService;
     }
 
     [HttpGet]
@@ -33,6 +35,13 @@ public class StudentsController : ControllerBase
         }
 
         return Ok(student);
+    }
+
+    [HttpGet("{id:int}/lessons")]
+    public IActionResult GetLessons(int id)
+    {
+        var lessons = _lessonsService.GetLessonsByStudentId(id);
+        return Ok(lessons);
     }
 
     [HttpPost]

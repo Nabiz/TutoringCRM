@@ -1,0 +1,25 @@
+@if (loading()) {
+	<p>Ładowanie danych ucznia...</p>
+} @else if (error()) {
+	<p>{{ error() }}</p>
+	<a routerLink="/students">Wróć do listy uczniów</a>
+} @else if (student(); as currentStudent) {
+	<a routerLink="/students">Wróć do listy uczniów</a>
+
+	<h1>{{ currentStudent.firstName }} {{ currentStudent.lastName }}</h1>
+	<p>Klasa: {{ currentStudent.grade }}</p>
+
+	<h2>Historia lekcji</h2>
+	<ul>
+		@for (lesson of lessons(); track lesson.id) {
+			<li>
+				{{ lesson.date | date:'dd.MM.yyyy HH:mm' }} •
+				{{ lesson.durationInMinutes }} min •
+				{{ getModeLabel(lesson.mode) }} •
+				{{ lesson.isPaid ? 'Opłacona' : 'Nieopłacona' }}
+			</li>
+		} @empty {
+			<li>Brak lekcji dla tego ucznia.</li>
+		}
+	</ul>
+}
