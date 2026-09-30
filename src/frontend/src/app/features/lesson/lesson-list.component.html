@@ -48,6 +48,7 @@
       {{ lesson.date | date:'dd.MM.yyyy HH:mm' }} • {{ lesson.durationInMinutes }} min •
       {{ getModeLabel(lesson.mode) }} •
       {{ lesson.isPaid ? 'Opłacona' : 'Nieopłacona' }} • Student ID: {{ lesson.studentId }}
+      <button type="button" (click)="deleteLesson(lesson.id)">Usuń</button>
     </li>
   } @empty {
     <li>Brak lekcji.</li>

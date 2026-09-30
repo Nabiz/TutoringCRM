@@ -8,4 +8,5 @@ public interface ILessonsService
     IEnumerable<LessonDto> GetLessonsByStudentId(int studentId);
     LessonDto? GetLessonById(int id);
     Task<LessonDto> CreateLessonAsync(CreateLessonDto createLessonDto);
+    Task DeleteLessonAsync(int id);
 }

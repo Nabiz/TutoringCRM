@@ -90,4 +90,9 @@ public class LessonsService : ILessonsService
             StudentId = lesson.StudentId
         };
     }
+
+    public async Task DeleteLessonAsync(int id)
+    {
+        _lessonsRepository.Delete(id);
+    }
 }

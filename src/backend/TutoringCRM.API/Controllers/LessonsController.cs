@@ -41,4 +41,11 @@ public class LessonsController : ControllerBase
         var lessonDto = await _lessonsService.CreateLessonAsync(createLessonDto);
         return CreatedAtAction(nameof(GetById), new { id = lessonDto.Id }, lessonDto);
     }
+
+    [HttpDelete("{id:int}")]
+    public async Task<IActionResult> DeleteLesson(int id)
+    {
+        await _lessonsService.DeleteLessonAsync(id);
+        return NoContent();
+    }
 }

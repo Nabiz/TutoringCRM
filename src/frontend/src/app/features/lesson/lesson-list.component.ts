@@ -47,6 +47,12 @@ export class LessonListComponent implements OnInit {
     });
   }
 
+  deleteLesson(lessonId: number) {
+    this.http.delete(`${this.lessonUrl}/${lessonId}`).subscribe(() => {
+      this.loadLessons();
+    });
+  }
+
   onSubmit() {
     if (!this.lessonForm.date || !this.lessonForm.studentId) {
       return;

@@ -37,4 +37,14 @@ public class LessonsRepository : ILessonsRepository
         _dbContext.Lessons.Add(lesson);
         _dbContext.SaveChanges();
     }
+
+    public void Delete(int id)
+    {
+        var lesson = _dbContext.Lessons.FirstOrDefault(l => l.Id == id);
+        if (lesson != null)
+        {
+            _dbContext.Lessons.Remove(lesson);
+            _dbContext.SaveChanges();
+        }
+    }
 }
