@@ -1,32 +1,48 @@
-<h1>Lista uczniów</h1>
+<mat-card>
+  <mat-card-header>
+    <mat-card-title>Dodaj ucznia</mat-card-title>
+  </mat-card-header>
+  <form (ngSubmit)="onSubmit()" #studentFormRef="ngForm">
+    <mat-card-content>
+      <mat-form-field>
+        <mat-label>Imię</mat-label>
+        <input matInput id="firstName" name="firstName" type="text" [(ngModel)]="studentForm.firstName" required />
+      </mat-form-field>
 
-<form (ngSubmit)="onSubmit()" #studentFormRef="ngForm">
-  <div>
-    <label for="firstName">Imie</label>
-    <input id="firstName" name="firstName" type="text" [(ngModel)]="studentForm.firstName" required />
-  </div>
+      <mat-form-field>
+        <mat-label>Nazwisko</mat-label>
+        <input matInput id="lastName" name="lastName" type="text" [(ngModel)]="studentForm.lastName" required />
+      </mat-form-field>
 
-  <div>
-    <label for="lastName">Nazwisko</label>
-    <input id="lastName" name="lastName" type="text" [(ngModel)]="studentForm.lastName" required />
-  </div>
+      <mat-form-field>
+        <mat-label>Klasa</mat-label>
+        <input matInput id="grade" name="grade" type="number" min="1" [(ngModel)]="studentForm.grade" required />
+      </mat-form-field>
+    </mat-card-content>
+    <mat-card-actions>
+      <button matButton="filled" type="submit" [disabled]="!studentFormRef.form.valid">Dodaj ucznia</button>
+    </mat-card-actions>
+  </form>
+</mat-card>
 
-  <div>
-    <label for="grade">Klasa</label>
-    <input id="grade" name="grade" type="number" min="1" [(ngModel)]="studentForm.grade" required />
-  </div>
-
-  <button type="submit" [disabled]="!studentFormRef.form.valid">Dodaj ucznia</button>
-</form>
-
-<ul>
-  @for (student of students(); track student.id) {
-    <li>
-      <a [routerLink]="['/students', student.id]">
-        {{ student.firstName }} {{ student.lastName }} (Klasa: {{ student.grade }})
-      </a>
-    </li>
-  } @empty {
-    <li>Brak uczniów.</li>
-  }
-</ul>
+<mat-card>
+  <mat-card-header>
+    <mat-card-title>Lista uczniów</mat-card-title>
+  </mat-card-header>
+  <mat-card-content>
+    @if (students().length) {
+      <mat-nav-list aria-label="Uczniowie">
+        @for (student of students(); track student.id) {
+          <a mat-list-item [routerLink]="['/students', student.id]">
+            <span matListItemTitle>{{ student.firstName }} {{ student.lastName }}</span>
+            <span matListItemLine>Klasa: {{ student.grade }}</span>
+          </a>
+        }
+      </mat-nav-list>
+    } @else {
+      <mat-list>
+        <mat-list-item>Brak uczniów.</mat-list-item>
+      </mat-list>
+    }
+  </mat-card-content>
+</mat-card>

@@ -1,65 +1,100 @@
 @if (loading()) {
-	<p>Ładowanie danych ucznia...</p>
+  <mat-card aria-busy="true">
+    <mat-card-header>
+      <mat-card-title>Ładowanie danych ucznia...</mat-card-title>
+    </mat-card-header>
+    <mat-card-content>
+      <mat-progress-bar mode="indeterminate" aria-label="Ładowanie danych ucznia"></mat-progress-bar>
+    </mat-card-content>
+  </mat-card>
 } @else if (error()) {
-	<p>{{ error() }}</p>
-	<a routerLink="/students">Wróć do listy uczniów</a>
+  <mat-card role="alert">
+    <mat-card-content>{{ error() }}</mat-card-content>
+    <mat-card-actions>
+      <a matButton routerLink="/students">Wróć do listy uczniów</a>
+    </mat-card-actions>
+  </mat-card>
 } @else if (student(); as currentStudent) {
-	<a routerLink="/students">Wróć do listy uczniów</a>
+  <mat-card>
+    <mat-card-header>
+      <mat-card-title>{{ currentStudent.firstName }} {{ currentStudent.lastName }}</mat-card-title>
+      <mat-card-subtitle>Klasa: {{ currentStudent.grade }} • ID ucznia: {{ currentStudent.id }}</mat-card-subtitle>
+    </mat-card-header>
+    <mat-card-actions>
+      <a matButton routerLink="/students">Wróć do listy uczniów</a>
+    </mat-card-actions>
+  </mat-card>
 
-	<h1>{{ currentStudent.firstName }} {{ currentStudent.lastName }}</h1>
-	<p>Klasa: {{ currentStudent.grade }}</p>
-	<p>ID ucznia: {{ currentStudent.id }}</p>
+  <mat-card>
+    <mat-card-header>
+      <mat-card-title>Dodaj lekcję</mat-card-title>
+    </mat-card-header>
+    <form (ngSubmit)="onSubmit()" #lessonFormRef="ngForm">
+      <mat-card-content>
+        <mat-form-field>
+          <mat-label>Data i godzina</mat-label>
+          <input matInput id="lessonDate" name="date" type="datetime-local" [(ngModel)]="lessonForm.date" required />
+        </mat-form-field>
 
-	<h2>Dodaj lekcję</h2>
-	<form (ngSubmit)="onSubmit()" #lessonFormRef="ngForm">
-		<div>
-			<label for="lessonDate">Data i godzina</label>
-			<input id="lessonDate" name="date" type="datetime-local" [(ngModel)]="lessonForm.date" required />
-		</div>
+        <mat-form-field>
+          <mat-label>Czas trwania (minuty)</mat-label>
+          <input matInput id="durationInMinutes" name="durationInMinutes" type="number" min="1" [(ngModel)]="lessonForm.durationInMinutes" required />
+        </mat-form-field>
 
-		<div>
-			<label for="durationInMinutes">Czas trwania (minuty)</label>
-			<input
-				id="durationInMinutes"
-				name="durationInMinutes"
-				type="number"
-				min="1"
-				[(ngModel)]="lessonForm.durationInMinutes"
-				required
-			/>
-		</div>
+        <mat-form-field>
+          <mat-label>Tryb</mat-label>
+          <mat-select id="lessonMode" name="mode" [(ngModel)]="lessonForm.mode" required>
+            <mat-option value="Online">Online</mat-option>
+            <mat-option value="AtTutor">U tutora</mat-option>
+            <mat-option value="AtStudent">U ucznia</mat-option>
+          </mat-select>
+        </mat-form-field>
 
-		<div>
-			<label for="lessonMode">Tryb</label>
-			<select id="lessonMode" name="mode" [(ngModel)]="lessonForm.mode" required>
-				<option value="Online">Online</option>
-				<option value="AtTutor">U tutor</option>
-				<option value="AtStudent">U ucznia</option>
-			</select>
-		</div>
+        <mat-checkbox name="isPaid" [(ngModel)]="lessonForm.isPaid">Opłacona</mat-checkbox>
+      </mat-card-content>
+      <mat-card-actions>
+        <button matButton="filled" type="submit" [disabled]="!lessonFormRef.form.valid">Dodaj lekcję</button>
+      </mat-card-actions>
+    </form>
+  </mat-card>
 
-		<div>
-			<label>
-				<input type="checkbox" name="isPaid" [(ngModel)]="lessonForm.isPaid" />
-				Opłacona
-			</label>
-		</div>
-
-		<button type="submit" [disabled]="!lessonFormRef.form.valid">Dodaj lekcję</button>
-	</form>
-
-	<h2>Historia lekcji</h2>
-	<ul>
-		@for (lesson of lessons(); track lesson.id) {
-			<li>
-				{{ lesson.date | date:'dd.MM.yyyy HH:mm' }} •
-				{{ lesson.durationInMinutes }} min •
-				{{ getModeLabel(lesson.mode) }} •
-				{{ lesson.isPaid ? 'Opłacona' : 'Nieopłacona' }}
-				<button type="button" (click)="deleteLesson(lesson.id)">Usuń</button>
-			</li>
-		} @empty {
-			<li>Brak lekcji dla tego ucznia.</li>
-		}
-	</ul>
+  <mat-card>
+    <mat-card-header>
+      <mat-card-title>Historia lekcji</mat-card-title>
+    </mat-card-header>
+    <mat-card-content>
+      @if (lessons().length) {
+        <mat-table [dataSource]="lessons()" aria-label="Historia lekcji ucznia">
+          <ng-container matColumnDef="date">
+            <mat-header-cell *matHeaderCellDef>Data i godzina</mat-header-cell>
+            <mat-cell *matCellDef="let lesson">{{ lesson.date | date:'dd.MM.yyyy HH:mm' }}</mat-cell>
+          </ng-container>
+          <ng-container matColumnDef="duration">
+            <mat-header-cell *matHeaderCellDef>Czas trwania</mat-header-cell>
+            <mat-cell *matCellDef="let lesson">{{ lesson.durationInMinutes }} min</mat-cell>
+          </ng-container>
+          <ng-container matColumnDef="mode">
+            <mat-header-cell *matHeaderCellDef>Tryb</mat-header-cell>
+            <mat-cell *matCellDef="let lesson">{{ getModeLabel(lesson.mode) }}</mat-cell>
+          </ng-container>
+          <ng-container matColumnDef="payment">
+            <mat-header-cell *matHeaderCellDef>Płatność</mat-header-cell>
+            <mat-cell *matCellDef="let lesson">{{ lesson.isPaid ? 'Opłacona' : 'Nieopłacona' }}</mat-cell>
+          </ng-container>
+          <ng-container matColumnDef="actions">
+            <mat-header-cell *matHeaderCellDef>Akcje</mat-header-cell>
+            <mat-cell *matCellDef="let lesson">
+              <button matButton type="button" (click)="deleteLesson(lesson.id)" [attr.aria-label]="'Usuń lekcję z ' + (lesson.date | date:'dd.MM.yyyy HH:mm')">Usuń</button>
+            </mat-cell>
+          </ng-container>
+          <mat-header-row *matHeaderRowDef="displayedColumns"></mat-header-row>
+          <mat-row *matRowDef="let row; columns: displayedColumns"></mat-row>
+        </mat-table>
+      } @else {
+        <mat-list>
+          <mat-list-item>Brak lekcji dla tego ucznia.</mat-list-item>
+        </mat-list>
+      }
+    </mat-card-content>
+  </mat-card>
 }

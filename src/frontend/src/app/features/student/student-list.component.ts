@@ -2,6 +2,11 @@ import { Component, signal, inject, OnInit } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 import { FormsModule } from '@angular/forms';
 import { RouterLink } from '@angular/router';
+import { MatButtonModule } from '@angular/material/button';
+import { MatCardModule } from '@angular/material/card';
+import { MatFormFieldModule } from '@angular/material/form-field';
+import { MatInputModule } from '@angular/material/input';
+import { MatListModule } from '@angular/material/list';
 import { Student } from './student.model';
 
 interface StudentForm {
@@ -13,7 +18,15 @@ interface StudentForm {
 @Component({
   selector: 'app-student-list',
   standalone: true,
-  imports: [FormsModule, RouterLink],
+  imports: [
+    FormsModule,
+    RouterLink,
+    MatButtonModule,
+    MatCardModule,
+    MatFormFieldModule,
+    MatInputModule,
+    MatListModule
+  ],
   templateUrl: './student-list.component.html'
 })
 export class StudentListComponent implements OnInit {

@@ -1,8 +1,8 @@
-<nav class="app-nav">
-	<a routerLink="/students" class="nav-link">Studenci</a>
-	<a routerLink="/lessons" class="nav-link">Lekcje</a>
-</nav>
+<mat-toolbar role="navigation" aria-label="Nawigacja główna">
+  <a matButton routerLink="/students">Studenci</a>
+  <a matButton routerLink="/lessons">Lekcje</a>
+</mat-toolbar>
 
-<main class="app-content">
-	<router-outlet></router-outlet>
+<main>
+  <router-outlet></router-outlet>
 </main>

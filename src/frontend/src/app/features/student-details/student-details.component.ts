@@ -3,6 +3,15 @@ import { HttpClient } from '@angular/common/http';
 import { Component, OnInit, inject, signal } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { ActivatedRoute, RouterLink } from '@angular/router';
+import { MatButtonModule } from '@angular/material/button';
+import { MatCardModule } from '@angular/material/card';
+import { MatCheckboxModule } from '@angular/material/checkbox';
+import { MatFormFieldModule } from '@angular/material/form-field';
+import { MatInputModule } from '@angular/material/input';
+import { MatListModule } from '@angular/material/list';
+import { MatProgressBarModule } from '@angular/material/progress-bar';
+import { MatSelectModule } from '@angular/material/select';
+import { MatTableModule } from '@angular/material/table';
 import { forkJoin } from 'rxjs';
 import { Lesson, LessonMode } from '../lesson/lesson.model';
 import { Student } from '../student/student.model';
@@ -17,7 +26,20 @@ interface LessonForm {
 @Component({
   selector: 'app-student-details',
   standalone: true,
-  imports: [DatePipe, FormsModule, RouterLink],
+  imports: [
+    DatePipe,
+    FormsModule,
+    RouterLink,
+    MatButtonModule,
+    MatCardModule,
+    MatCheckboxModule,
+    MatFormFieldModule,
+    MatInputModule,
+    MatListModule,
+    MatProgressBarModule,
+    MatSelectModule,
+    MatTableModule
+  ],
   templateUrl: './student-details.component.html'
 })
 export class StudentDetailsComponent implements OnInit {
@@ -25,6 +47,8 @@ export class StudentDetailsComponent implements OnInit {
   private readonly route = inject(ActivatedRoute);
   private readonly studentsUrl = 'http://localhost:8080/api/students';
   private readonly lessonsUrl = 'http://localhost:8080/api/lessons';
+
+  readonly displayedColumns = ['date', 'duration', 'mode', 'payment', 'actions'];
 
   readonly lessonModeLabels: Record<number, string> = {
     0: 'Online',
