@@ -1,10 +1,8 @@
 import { Component } from '@angular/core';
-import { RouterOutlet, RouterLink } from '@angular/router';
-import { MatButtonModule } from '@angular/material/button';
-import { MatToolbarModule } from '@angular/material/toolbar';
+import { AppShellComponent } from './core/layout/app-shell.component';
 
 @Component({
-  imports: [RouterOutlet, RouterLink, MatButtonModule, MatToolbarModule],
+  imports: [AppShellComponent],
   selector: 'app-root',
   templateUrl: './app.html',
 })

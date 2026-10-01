@@ -1,5 +1,4 @@
 import { Component, OnInit, signal, inject } from '@angular/core';
-import { HttpClient } from '@angular/common/http';
 import { FormsModule } from '@angular/forms';
 import { DatePipe } from '@angular/common';
 import { MatButtonModule } from '@angular/material/button';
@@ -10,7 +9,14 @@ import { MatInputModule } from '@angular/material/input';
 import { MatListModule } from '@angular/material/list';
 import { MatSelectModule } from '@angular/material/select';
 import { MatTableModule } from '@angular/material/table';
-import { Lesson, LessonMode } from './lesson.model';
+import { formatDateTimeInput } from '../../../../shared/utils/date-time';
+import {
+  CreateLessonRequest,
+  Lesson,
+  LessonMode,
+  lessonModeValues,
+} from '../../data-access/lesson.model';
+import { LessonsApiService } from '../../data-access/lessons-api.service';
 
 interface LessonForm {
   date: string;
@@ -33,29 +39,28 @@ interface LessonForm {
     MatInputModule,
     MatListModule,
     MatSelectModule,
-    MatTableModule
+    MatTableModule,
   ],
-  templateUrl: './lesson-list.component.html'
+  templateUrl: './lesson-list.component.html',
 })
 export class LessonListComponent implements OnInit {
-  private http = inject(HttpClient);
-  private lessonUrl = 'http://localhost:8080/api/lessons';
+  private readonly lessonsApi = inject(LessonsApiService);
 
   readonly displayedColumns = ['date', 'duration', 'mode', 'payment', 'student', 'actions'];
 
   readonly lessonModeLabels: Record<number, string> = {
     0: 'Online',
     1: 'AtTutor',
-    2: 'AtStudent'
+    2: 'AtStudent',
   };
 
   lessons = signal<Lesson[]>([]);
   lessonForm: LessonForm = {
-    date: this.formatDateTimeInput(new Date()),
+    date: formatDateTimeInput(new Date()),
     durationInMinutes: 60,
     mode: 'Online',
     isPaid: false,
-    studentId: 1
+    studentId: 1,
   };
 
   ngOnInit() {
@@ -63,13 +68,13 @@ export class LessonListComponent implements OnInit {
   }
 
   loadLessons() {
-    this.http.get<Lesson[]>(this.lessonUrl).subscribe((data) => {
+    this.lessonsApi.getAll().subscribe((data) => {
       this.lessons.set(data);
     });
   }
 
   deleteLesson(lessonId: number) {
-    this.http.delete(`${this.lessonUrl}/${lessonId}`).subscribe(() => {
+    this.lessonsApi.delete(lessonId).subscribe(() => {
       this.loadLessons();
     });
   }
@@ -79,21 +84,21 @@ export class LessonListComponent implements OnInit {
       return;
     }
 
-    const payload = {
+    const payload: CreateLessonRequest = {
       date: new Date(this.lessonForm.date).toISOString(),
       durationInMinutes: Number(this.lessonForm.durationInMinutes),
-      mode: this.getModeValue(this.lessonForm.mode),
+      mode: lessonModeValues[this.lessonForm.mode],
       isPaid: Boolean(this.lessonForm.isPaid),
-      studentId: Number(this.lessonForm.studentId)
+      studentId: Number(this.lessonForm.studentId),
     };
 
-    this.http.post<Lesson>(this.lessonUrl, payload).subscribe(() => {
+    this.lessonsApi.create(payload).subscribe(() => {
       this.lessonForm = {
-        date: this.formatDateTimeInput(new Date()),
+        date: formatDateTimeInput(new Date()),
         durationInMinutes: 60,
         mode: 'Online',
         isPaid: false,
-        studentId: 1
+        studentId: 1,
       };
       this.loadLessons();
     });
@@ -101,20 +106,5 @@ export class LessonListComponent implements OnInit {
 
   getModeLabel(mode: number): string {
     return this.lessonModeLabels[mode] ?? 'Unknown';
-  }
-
-  private getModeValue(mode: LessonMode): number {
-    const values: Record<LessonMode, number> = {
-      Online: 0,
-      AtTutor: 1,
-      AtStudent: 2
-    };
-
-    return values[mode];
-  }
-
-  private formatDateTimeInput(date: Date): string {
-    const local = new Date(date.getTime() - date.getTimezoneOffset() * 60000);
-    return local.toISOString().slice(0, 16);
   }
 }

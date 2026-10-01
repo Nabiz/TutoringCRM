@@ -1,7 +1,7 @@
 import { ApplicationConfig, provideBrowserGlobalErrorListeners } from '@angular/core';
 import { provideRouter } from '@angular/router';
 import { provideHttpClient } from '@angular/common/http';
-import { MAT_CARD_CONFIG } from '@angular/material/card';
+import { materialProviders } from './core/config/material.config';
 import { routes } from './app.routes';
 
 export const appConfig: ApplicationConfig = {
@@ -9,6 +9,6 @@ export const appConfig: ApplicationConfig = {
     provideBrowserGlobalErrorListeners(),
     provideRouter(routes),
     provideHttpClient(),
-    { provide: MAT_CARD_CONFIG, useValue: { appearance: 'outlined' } },
-  ]
+    ...materialProviders,
+  ],
 };

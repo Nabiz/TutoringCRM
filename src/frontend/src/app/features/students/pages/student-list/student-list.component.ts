@@ -1,5 +1,4 @@
 import { Component, signal, inject, OnInit } from '@angular/core';
-import { HttpClient } from '@angular/common/http';
 import { FormsModule } from '@angular/forms';
 import { RouterLink } from '@angular/router';
 import { MatButtonModule } from '@angular/material/button';
@@ -7,13 +6,8 @@ import { MatCardModule } from '@angular/material/card';
 import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatInputModule } from '@angular/material/input';
 import { MatListModule } from '@angular/material/list';
-import { Student } from './student.model';
-
-interface StudentForm {
-  firstName: string;
-  lastName: string;
-  grade: number;
-}
+import { CreateStudentRequest, Student } from '../../data-access/student.model';
+import { StudentsApiService } from '../../data-access/students-api.service';
 
 @Component({
   selector: 'app-student-list',
@@ -25,19 +19,18 @@ interface StudentForm {
     MatCardModule,
     MatFormFieldModule,
     MatInputModule,
-    MatListModule
+    MatListModule,
   ],
-  templateUrl: './student-list.component.html'
+  templateUrl: './student-list.component.html',
 })
 export class StudentListComponent implements OnInit {
-  private http = inject(HttpClient);
-  private studentUrl = 'http://localhost:8080/api/students';
+  private readonly studentsApi = inject(StudentsApiService);
 
   students = signal<Student[]>([]);
-  studentForm: StudentForm = {
+  studentForm: CreateStudentRequest = {
     firstName: '',
     lastName: '',
-    grade: 1
+    grade: 1,
   };
 
   ngOnInit() {
@@ -45,7 +38,7 @@ export class StudentListComponent implements OnInit {
   }
 
   loadStudents() {
-    this.http.get<Student[]>(this.studentUrl).subscribe((data) => {
+    this.studentsApi.getAll().subscribe((data) => {
       this.students.set(data);
     });
   }
@@ -54,14 +47,14 @@ export class StudentListComponent implements OnInit {
     const payload = {
       firstName: this.studentForm.firstName.trim(),
       lastName: this.studentForm.lastName.trim(),
-      grade: Number(this.studentForm.grade)
+      grade: Number(this.studentForm.grade),
     };
 
     if (!payload.firstName || !payload.lastName) {
       return;
     }
 
-    this.http.post<Student>(this.studentUrl, payload).subscribe(() => {
+    this.studentsApi.create(payload).subscribe(() => {
       this.studentForm = { firstName: '', lastName: '', grade: 1 };
       this.loadStudents();
     });

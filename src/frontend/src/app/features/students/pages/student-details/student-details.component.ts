@@ -1,5 +1,4 @@
 import { DatePipe } from '@angular/common';
-import { HttpClient } from '@angular/common/http';
 import { Component, OnInit, inject, signal } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { ActivatedRoute, RouterLink } from '@angular/router';
@@ -13,8 +12,16 @@ import { MatProgressBarModule } from '@angular/material/progress-bar';
 import { MatSelectModule } from '@angular/material/select';
 import { MatTableModule } from '@angular/material/table';
 import { forkJoin } from 'rxjs';
-import { Lesson, LessonMode } from '../lesson/lesson.model';
-import { Student } from '../student/student.model';
+import { formatDateTimeInput } from '../../../../shared/utils/date-time';
+import {
+  CreateLessonRequest,
+  Lesson,
+  LessonMode,
+  lessonModeValues,
+} from '../../../lessons/data-access/lesson.model';
+import { LessonsApiService } from '../../../lessons/data-access/lessons-api.service';
+import { Student } from '../../data-access/student.model';
+import { StudentsApiService } from '../../data-access/students-api.service';
 
 interface LessonForm {
   date: string;
@@ -38,22 +45,21 @@ interface LessonForm {
     MatListModule,
     MatProgressBarModule,
     MatSelectModule,
-    MatTableModule
+    MatTableModule,
   ],
-  templateUrl: './student-details.component.html'
+  templateUrl: './student-details.component.html',
 })
 export class StudentDetailsComponent implements OnInit {
-  private readonly http = inject(HttpClient);
+  private readonly studentsApi = inject(StudentsApiService);
+  private readonly lessonsApi = inject(LessonsApiService);
   private readonly route = inject(ActivatedRoute);
-  private readonly studentsUrl = 'http://localhost:8080/api/students';
-  private readonly lessonsUrl = 'http://localhost:8080/api/lessons';
 
   readonly displayedColumns = ['date', 'duration', 'mode', 'payment', 'actions'];
 
   readonly lessonModeLabels: Record<number, string> = {
     0: 'Online',
     1: 'U tutora',
-    2: 'U ucznia'
+    2: 'U ucznia',
   };
 
   readonly student = signal<Student | null>(null);
@@ -62,10 +68,10 @@ export class StudentDetailsComponent implements OnInit {
   readonly error = signal('');
 
   lessonForm: LessonForm = {
-    date: this.formatDateTimeInput(new Date()),
+    date: formatDateTimeInput(new Date()),
     durationInMinutes: 60,
     mode: 'Online',
-    isPaid: false
+    isPaid: false,
   };
 
   ngOnInit(): void {
@@ -82,8 +88,8 @@ export class StudentDetailsComponent implements OnInit {
     }
 
     forkJoin({
-      student: this.http.get<Student>(`${this.studentsUrl}/${studentId}`),
-      lessons: this.http.get<Lesson[]>(`${this.studentsUrl}/${studentId}/lessons`)
+      student: this.studentsApi.getById(studentId),
+      lessons: this.studentsApi.getLessons(studentId),
     }).subscribe({
       next: (data) => {
         this.student.set(data.student);
@@ -93,7 +99,7 @@ export class StudentDetailsComponent implements OnInit {
       error: () => {
         this.error.set('Nie udało się pobrać danych ucznia.');
         this.loading.set(false);
-      }
+      },
     });
   }
 
@@ -104,32 +110,32 @@ export class StudentDetailsComponent implements OnInit {
       return;
     }
 
-    const payload = {
+    const payload: CreateLessonRequest = {
       date: new Date(this.lessonForm.date).toISOString(),
       durationInMinutes: Number(this.lessonForm.durationInMinutes),
-      mode: this.getModeValue(this.lessonForm.mode),
+      mode: lessonModeValues[this.lessonForm.mode],
       isPaid: Boolean(this.lessonForm.isPaid),
-      studentId: Number(studentId)
+      studentId: Number(studentId),
     };
 
-    this.http.post<Lesson>(this.lessonsUrl, payload).subscribe({
+    this.lessonsApi.create(payload).subscribe({
       next: () => {
         this.lessonForm = {
-          date: this.formatDateTimeInput(new Date()),
+          date: formatDateTimeInput(new Date()),
           durationInMinutes: 60,
           mode: 'Online',
-          isPaid: false
+          isPaid: false,
         };
         this.loadStudentData();
       },
       error: () => {
         this.error.set('Nie udało się dodać lekcji.');
-      }
+      },
     });
   }
 
   deleteLesson(lessonId: number): void {
-    this.http.delete(`${this.lessonsUrl}/${lessonId}`).subscribe({
+    this.lessonsApi.delete(lessonId).subscribe({
       next: () => {
         const studentId = this.student()?.id;
 
@@ -138,30 +144,17 @@ export class StudentDetailsComponent implements OnInit {
           return;
         }
 
-        this.lessons.update((currentLessons) => currentLessons.filter((lesson) => lesson.id !== lessonId));
+        this.lessons.update((currentLessons) =>
+          currentLessons.filter((lesson) => lesson.id !== lessonId),
+        );
       },
       error: () => {
         this.error.set('Nie udało się usunąć lekcji.');
-      }
+      },
     });
   }
 
   getModeLabel(mode: number): string {
     return this.lessonModeLabels[mode] ?? 'Nieznany';
-  }
-
-  private getModeValue(mode: LessonMode): number {
-    const values: Record<LessonMode, number> = {
-      Online: 0,
-      AtTutor: 1,
-      AtStudent: 2
-    };
-
-    return values[mode];
-  }
-
-  private formatDateTimeInput(date: Date): string {
-    const local = new Date(date.getTime() - date.getTimezoneOffset() * 60000);
-    return local.toISOString().slice(0, 16);
   }
 }
