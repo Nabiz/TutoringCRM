@@ -16,9 +16,9 @@ public class LessonsService : ILessonsService
         _lessonsRepository = lessonsRepository;
     }
 
-    public IEnumerable<LessonDto> GetAllLessons()
+    public async Task<IEnumerable<LessonDto>> GetAllLessonsAsync(CancellationToken cancellationToken = default)
     {
-        var lessons = _lessonsRepository.GetAll();
+        var lessons = await _lessonsRepository.GetAllAsync(cancellationToken);
 
         return lessons.Select(lesson => new LessonDto
         {
@@ -31,9 +31,9 @@ public class LessonsService : ILessonsService
         });
     }
 
-    public IEnumerable<LessonDto> GetLessonsByStudentId(int studentId)
+    public async Task<IEnumerable<LessonDto>> GetLessonsByStudentIdAsync(int studentId, CancellationToken cancellationToken = default)
     {
-        var lessons = _lessonsRepository.GetByStudentId(studentId);
+        var lessons = await _lessonsRepository.GetByStudentIdAsync(studentId, cancellationToken);
 
         return lessons.Select(lesson => new LessonDto
         {
@@ -46,9 +46,9 @@ public class LessonsService : ILessonsService
         });
     }
 
-    public LessonDto? GetLessonById(int id)
+    public async Task<LessonDto?> GetLessonByIdAsync(int id, CancellationToken cancellationToken = default)
     {
-        var lesson = _lessonsRepository.GetById(id);
+        var lesson = await _lessonsRepository.GetByIdAsync(id, cancellationToken);
 
         if (lesson == null)
         {
@@ -66,7 +66,7 @@ public class LessonsService : ILessonsService
         };
     }
 
-    public async Task<LessonDto> CreateLessonAsync(CreateLessonDto createDto)
+    public async Task<LessonDto> CreateLessonAsync(CreateLessonDto createDto, CancellationToken cancellationToken = default)
     {
         var lesson = new Lesson
         {
@@ -78,7 +78,7 @@ public class LessonsService : ILessonsService
             StudentId = createDto.StudentId
         };
 
-        _lessonsRepository.Add(lesson);
+        await _lessonsRepository.AddAsync(lesson, cancellationToken);
 
         return new LessonDto
         {
@@ -91,8 +91,60 @@ public class LessonsService : ILessonsService
         };
     }
 
-    public async Task DeleteLessonAsync(int id)
+    public async Task<LessonDto> UpdateLessonAsync(int id, LessonDto updateLessonDto, CancellationToken cancellationToken = default)
     {
-        _lessonsRepository.Delete(id);
+        var existingLesson = await _lessonsRepository.GetByIdAsync(id, cancellationToken);
+
+        if (existingLesson == null)
+        {
+            throw new KeyNotFoundException($"Lesson with ID {id} not found.");
+        }
+
+        existingLesson.Date = updateLessonDto.Date;
+        existingLesson.DurationInMinutes = updateLessonDto.DurationInMinutes;
+        existingLesson.Mode = updateLessonDto.Mode;
+        existingLesson.IsPaid = updateLessonDto.IsPaid;
+        existingLesson.StudentId = updateLessonDto.StudentId;
+
+        await _lessonsRepository.UpdateAsync(existingLesson, cancellationToken);
+
+        return new LessonDto
+        {
+            Id = existingLesson.Id,
+            Date = existingLesson.Date,
+            DurationInMinutes = existingLesson.DurationInMinutes,
+            Mode = existingLesson.Mode,
+            IsPaid = existingLesson.IsPaid,
+            StudentId = existingLesson.StudentId
+        };
+    }
+
+    public async Task<LessonDto> ConfirmPaymentAsync(int id, CancellationToken cancellationToken = default)
+    {
+        var existingLesson = await _lessonsRepository.GetByIdAsync(id, cancellationToken);
+
+        if (existingLesson == null)
+        {
+            throw new KeyNotFoundException($"Lesson with ID {id} not found.");
+        }
+
+        existingLesson.IsPaid = true;
+
+        await _lessonsRepository.UpdateAsync(existingLesson, cancellationToken);
+
+        return new LessonDto
+        {
+            Id = existingLesson.Id,
+            Date = existingLesson.Date,
+            DurationInMinutes = existingLesson.DurationInMinutes,
+            Mode = existingLesson.Mode,
+            IsPaid = existingLesson.IsPaid,
+            StudentId = existingLesson.StudentId
+        };
+    }
+
+    public Task DeleteLessonAsync(int id, CancellationToken cancellationToken = default)
+    {
+        return _lessonsRepository.DeleteAsync(id, cancellationToken);
     }
 }

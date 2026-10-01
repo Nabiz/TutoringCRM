@@ -16,16 +16,16 @@ public class LessonsController : ControllerBase
     }
 
     [HttpGet]
-    public IActionResult Get()
+    public async Task<IActionResult> Get(CancellationToken cancellationToken)
     {
-        var lessons = _lessonsService.GetAllLessons();
+        var lessons = await _lessonsService.GetAllLessonsAsync(cancellationToken);
         return Ok(lessons);
     }
 
     [HttpGet("{id:int}")]
-    public IActionResult GetById(int id)
+    public async Task<IActionResult> GetById(int id, CancellationToken cancellationToken)
     {
-        var lesson = _lessonsService.GetLessonById(id);
+        var lesson = await _lessonsService.GetLessonByIdAsync(id, cancellationToken);
 
         if (lesson == null)
         {
@@ -36,16 +36,30 @@ public class LessonsController : ControllerBase
     }
 
     [HttpPost]
-    public async Task<ActionResult<LessonDto>> CreateLesson([FromBody] CreateLessonDto createLessonDto)
+    public async Task<ActionResult<LessonDto>> CreateLesson([FromBody] CreateLessonDto createLessonDto, CancellationToken cancellationToken)
     {
-        var lessonDto = await _lessonsService.CreateLessonAsync(createLessonDto);
+        var lessonDto = await _lessonsService.CreateLessonAsync(createLessonDto, cancellationToken);
         return CreatedAtAction(nameof(GetById), new { id = lessonDto.Id }, lessonDto);
     }
 
-    [HttpDelete("{id:int}")]
-    public async Task<IActionResult> DeleteLesson(int id)
+    [HttpPut("{id:int}")]
+    public async Task<ActionResult<LessonDto>> UpdateLesson(int id, [FromBody] LessonDto updateLessonDto, CancellationToken cancellationToken)
     {
-        await _lessonsService.DeleteLessonAsync(id);
+        var updatedLesson = await _lessonsService.UpdateLessonAsync(id, updateLessonDto, cancellationToken);
+        return Ok(updatedLesson);
+    }
+
+    [HttpPost("{id:int}/confirm-payment")]
+    public async Task<ActionResult<LessonDto>> ConfirmPayment(int id, CancellationToken cancellationToken)
+    {
+        var confirmedLesson = await _lessonsService.ConfirmPaymentAsync(id, cancellationToken);
+        return Ok(confirmedLesson);
+    }
+
+    [HttpDelete("{id:int}")]
+    public async Task<IActionResult> DeleteLesson(int id, CancellationToken cancellationToken)
+    {
+        await _lessonsService.DeleteLessonAsync(id, cancellationToken);
         return NoContent();
     }
 }

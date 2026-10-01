@@ -16,9 +16,9 @@ public class StudentsService : IStudentsService
         _studentsRepository = studentsRepository;
     }
 
-    public IEnumerable<StudentDto> GetAllStudents()
+    public async Task<IEnumerable<StudentDto>> GetAllStudentsAsync(CancellationToken cancellationToken = default)
     {
-        var students = _studentsRepository.GetAll();
+        var students = await _studentsRepository.GetAllAsync(cancellationToken);
 
         return students.Select(student => new StudentDto
         {
@@ -29,9 +29,9 @@ public class StudentsService : IStudentsService
         });
     }
 
-    public StudentDto? GetStudentById(int id)
+    public async Task<StudentDto?> GetStudentByIdAsync(int id, CancellationToken cancellationToken = default)
     {
-        var student = _studentsRepository.GetById(id);
+        var student = await _studentsRepository.GetByIdAsync(id, cancellationToken);
 
         if (student == null)
         {
@@ -47,7 +47,7 @@ public class StudentsService : IStudentsService
         };
     }
 
-public async Task<StudentDto> CreateStudentAsync(CreateStudentDto createDto)
+    public async Task<StudentDto> CreateStudentAsync(CreateStudentDto createDto, CancellationToken cancellationToken = default)
     {
         var student = new Student
         {
@@ -57,7 +57,7 @@ public async Task<StudentDto> CreateStudentAsync(CreateStudentDto createDto)
             Grade = createDto.Grade
         };
 
-        _studentsRepository.Add(student);
+        await _studentsRepository.AddAsync(student, cancellationToken);
 
         return new StudentDto
         {

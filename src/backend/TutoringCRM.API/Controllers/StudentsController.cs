@@ -18,16 +18,16 @@ public class StudentsController : ControllerBase
     }
 
     [HttpGet]
-    public IActionResult Get()
+    public async Task<IActionResult> Get(CancellationToken cancellationToken)
     {
-        var students = _studentsService.GetAllStudents();
+        var students = await _studentsService.GetAllStudentsAsync(cancellationToken);
         return Ok(students);
     }
 
     [HttpGet("{id:int}")]
-    public IActionResult GetById(int id)
+    public async Task<IActionResult> GetById(int id, CancellationToken cancellationToken)
     {
-        var student = _studentsService.GetStudentById(id);
+        var student = await _studentsService.GetStudentByIdAsync(id, cancellationToken);
         
         if (student == null)
         {
@@ -38,16 +38,16 @@ public class StudentsController : ControllerBase
     }
 
     [HttpGet("{id:int}/lessons")]
-    public IActionResult GetLessons(int id)
+    public async Task<IActionResult> GetLessons(int id, CancellationToken cancellationToken)
     {
-        var lessons = _lessonsService.GetLessonsByStudentId(id);
+        var lessons = await _lessonsService.GetLessonsByStudentIdAsync(id, cancellationToken);
         return Ok(lessons);
     }
 
     [HttpPost]
-    public async Task<ActionResult<StudentDto>> CreateStudent([FromBody] CreateStudentDto createStudentDto)
+    public async Task<ActionResult<StudentDto>> CreateStudent([FromBody] CreateStudentDto createStudentDto, CancellationToken cancellationToken)
     {
-        var studentDto = await _studentsService.CreateStudentAsync(createStudentDto);
+        var studentDto = await _studentsService.CreateStudentAsync(createStudentDto, cancellationToken);
         return CreatedAtAction(nameof(GetById), new { id = studentDto.Id }, studentDto);
     }
 }

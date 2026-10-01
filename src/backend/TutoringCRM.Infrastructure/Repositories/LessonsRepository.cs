@@ -1,5 +1,6 @@
 using System.Collections.Generic;
 using System.Linq;
+using Microsoft.EntityFrameworkCore;
 using TutoringCRM.Domain.Entities;
 using TutoringCRM.Domain.Interfaces;
 using TutoringCRM.Infrastructure.Data;
@@ -15,36 +16,42 @@ public class LessonsRepository : ILessonsRepository
         _dbContext = dbContext;
     }
 
-    public IEnumerable<Lesson> GetAll()
+    public async Task<IEnumerable<Lesson>> GetAllAsync(CancellationToken cancellationToken = default)
     {
-        return _dbContext.Lessons.ToList();
+        return await _dbContext.Lessons.ToListAsync(cancellationToken);
     }
 
-    public IEnumerable<Lesson> GetByStudentId(int studentId)
+    public async Task<IEnumerable<Lesson>> GetByStudentIdAsync(int studentId, CancellationToken cancellationToken = default)
     {
-        return _dbContext.Lessons
+        return await _dbContext.Lessons
             .Where(lesson => lesson.StudentId == studentId)
-            .ToList();
+            .ToListAsync(cancellationToken);
     }
 
-    public Lesson? GetById(int id)
+    public Task<Lesson?> GetByIdAsync(int id, CancellationToken cancellationToken = default)
     {
-        return _dbContext.Lessons.FirstOrDefault(l => l.Id == id);
+        return _dbContext.Lessons.FirstOrDefaultAsync(l => l.Id == id, cancellationToken);
     }
 
-    public void Add(Lesson lesson)
+    public async Task AddAsync(Lesson lesson, CancellationToken cancellationToken = default)
     {
         _dbContext.Lessons.Add(lesson);
-        _dbContext.SaveChanges();
+        await _dbContext.SaveChangesAsync(cancellationToken);
     }
 
-    public void Delete(int id)
+    public async Task UpdateAsync(Lesson lesson, CancellationToken cancellationToken = default)
     {
-        var lesson = _dbContext.Lessons.FirstOrDefault(l => l.Id == id);
+        _dbContext.Lessons.Update(lesson);
+        await _dbContext.SaveChangesAsync(cancellationToken);
+    }
+
+    public async Task DeleteAsync(int id, CancellationToken cancellationToken = default)
+    {
+        var lesson = await _dbContext.Lessons.FirstOrDefaultAsync(l => l.Id == id, cancellationToken);
         if (lesson != null)
         {
             _dbContext.Lessons.Remove(lesson);
-            _dbContext.SaveChanges();
+            await _dbContext.SaveChangesAsync(cancellationToken);
         }
     }
 }

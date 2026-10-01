@@ -1,5 +1,6 @@
 using System.Collections.Generic;
 using System.Linq;
+using Microsoft.EntityFrameworkCore;
 using TutoringCRM.Domain.Entities;
 using TutoringCRM.Domain.Interfaces;
 using TutoringCRM.Infrastructure.Data;
@@ -15,18 +16,18 @@ public class StudentsRepository : IStudentsRepository
         _dbContext = dbContext;
     }
 
-    public IEnumerable<Student> GetAll()
+    public async Task<IEnumerable<Student>> GetAllAsync(CancellationToken cancellationToken = default)
     {
-        return _dbContext.Students.ToList();
+        return await _dbContext.Students.ToListAsync(cancellationToken);
     }
 
-    public Student? GetById(int id)
+    public Task<Student?> GetByIdAsync(int id, CancellationToken cancellationToken = default)
     {
-        return _dbContext.Students.FirstOrDefault(s => s.Id == id);
+        return _dbContext.Students.FirstOrDefaultAsync(s => s.Id == id, cancellationToken);
     }
-    public void Add(Student student)
+    public async Task AddAsync(Student student, CancellationToken cancellationToken = default)
     {
         _dbContext.Students.Add(student);
-        _dbContext.SaveChanges();
+        await _dbContext.SaveChangesAsync(cancellationToken);
     }
 }

@@ -5,7 +5,7 @@ namespace TutoringCRM.Application.Interfaces;
 
 public interface IStudentsService
 {
-    IEnumerable<StudentDto> GetAllStudents();
-    StudentDto? GetStudentById(int id);
-    Task<StudentDto> CreateStudentAsync(CreateStudentDto createStudentDto);
+    Task<IEnumerable<StudentDto>> GetAllStudentsAsync(CancellationToken cancellationToken = default);
+    Task<StudentDto?> GetStudentByIdAsync(int id, CancellationToken cancellationToken = default);
+    Task<StudentDto> CreateStudentAsync(CreateStudentDto createStudentDto, CancellationToken cancellationToken = default);
 }

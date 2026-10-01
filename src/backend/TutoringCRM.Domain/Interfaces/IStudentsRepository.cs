@@ -5,7 +5,7 @@ namespace TutoringCRM.Domain.Interfaces;
 
 public interface IStudentsRepository
 {
-    IEnumerable<Student> GetAll();
-    Student? GetById(int id);
-    void Add(Student student);
+    Task<IEnumerable<Student>> GetAllAsync(CancellationToken cancellationToken = default);
+    Task<Student?> GetByIdAsync(int id, CancellationToken cancellationToken = default);
+    Task AddAsync(Student student, CancellationToken cancellationToken = default);
 }
