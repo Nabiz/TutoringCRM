@@ -1,4 +1,3 @@
-import { DatePipe } from '@angular/common';
 import { Component, OnInit, inject, signal } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { ActivatedRoute, RouterLink } from '@angular/router';
@@ -7,12 +6,12 @@ import { MatCardModule } from '@angular/material/card';
 import { MatCheckboxModule } from '@angular/material/checkbox';
 import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatInputModule } from '@angular/material/input';
-import { MatListModule } from '@angular/material/list';
 import { MatProgressBarModule } from '@angular/material/progress-bar';
 import { MatSelectModule } from '@angular/material/select';
-import { MatTableModule } from '@angular/material/table';
-import { forkJoin } from 'rxjs';
+import { MatSnackBar } from '@angular/material/snack-bar';
+import { finalize, forkJoin } from 'rxjs';
 import { formatDateTimeInput } from '../../../../shared/utils/date-time';
+import { LessonTableComponent } from '../../../lessons/components/lesson-table/lesson-table.component';
 import {
   CreateLessonRequest,
   Lesson,
@@ -34,7 +33,6 @@ interface LessonForm {
   selector: 'app-student-details',
   standalone: true,
   imports: [
-    DatePipe,
     FormsModule,
     RouterLink,
     MatButtonModule,
@@ -42,10 +40,9 @@ interface LessonForm {
     MatCheckboxModule,
     MatFormFieldModule,
     MatInputModule,
-    MatListModule,
     MatProgressBarModule,
     MatSelectModule,
-    MatTableModule,
+    LessonTableComponent,
   ],
   templateUrl: './student-details.component.html',
 })
@@ -53,17 +50,11 @@ export class StudentDetailsComponent implements OnInit {
   private readonly studentsApi = inject(StudentsApiService);
   private readonly lessonsApi = inject(LessonsApiService);
   private readonly route = inject(ActivatedRoute);
-
-  readonly displayedColumns = ['date', 'duration', 'mode', 'payment', 'actions'];
-
-  readonly lessonModeLabels: Record<number, string> = {
-    0: 'Online',
-    1: 'U tutora',
-    2: 'U ucznia',
-  };
+  private readonly snackBar = inject(MatSnackBar);
 
   readonly student = signal<Student | null>(null);
   readonly lessons = signal<Lesson[]>([]);
+  readonly pendingPaymentIds = signal<number[]>([]);
   readonly loading = signal(true);
   readonly error = signal('');
 
@@ -134,6 +125,31 @@ export class StudentDetailsComponent implements OnInit {
     });
   }
 
+  confirmPayment(lessonId: number): void {
+    if (this.pendingPaymentIds().includes(lessonId)) {
+      return;
+    }
+
+    this.pendingPaymentIds.update((ids) => [...ids, lessonId]);
+    this.lessonsApi
+      .confirmPayment(lessonId)
+      .pipe(
+        finalize(() => this.pendingPaymentIds.update((ids) => ids.filter((id) => id !== lessonId))),
+      )
+      .subscribe({
+        next: (updatedLesson) => {
+          this.lessons.update((lessons) =>
+            lessons.map((lesson) => (lesson.id === lessonId ? updatedLesson : lesson)),
+          );
+        },
+        error: () => {
+          this.snackBar.open('Nie udało się potwierdzić płatności. Spróbuj ponownie.', 'Zamknij', {
+            duration: 5000,
+          });
+        },
+      });
+  }
+
   deleteLesson(lessonId: number): void {
     this.lessonsApi.delete(lessonId).subscribe({
       next: () => {
@@ -152,9 +168,5 @@ export class StudentDetailsComponent implements OnInit {
         this.error.set('Nie udało się usunąć lekcji.');
       },
     });
-  }
-
-  getModeLabel(mode: number): string {
-    return this.lessonModeLabels[mode] ?? 'Nieznany';
   }
 }

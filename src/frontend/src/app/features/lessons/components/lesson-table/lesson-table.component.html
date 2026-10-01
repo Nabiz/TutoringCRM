@@ -1,0 +1,59 @@
+@if (lessons().length) {
+  <mat-table [dataSource]="lessons()" [attr.aria-label]="tableLabel()">
+    <ng-container matColumnDef="date">
+      <mat-header-cell *matHeaderCellDef>Data i godzina</mat-header-cell>
+      <mat-cell *matCellDef="let lesson">{{ lesson.date | date: 'dd.MM.yyyy HH:mm' }}</mat-cell>
+    </ng-container>
+    <ng-container matColumnDef="duration">
+      <mat-header-cell *matHeaderCellDef>Czas trwania</mat-header-cell>
+      <mat-cell *matCellDef="let lesson">{{ lesson.durationInMinutes }} min</mat-cell>
+    </ng-container>
+    <ng-container matColumnDef="mode">
+      <mat-header-cell *matHeaderCellDef>Tryb</mat-header-cell>
+      <mat-cell *matCellDef="let lesson">{{ getModeLabel(lesson.mode) }}</mat-cell>
+    </ng-container>
+    <ng-container matColumnDef="payment">
+      <mat-header-cell *matHeaderCellDef>Płatność</mat-header-cell>
+      <mat-cell *matCellDef="let lesson">{{ lesson.isPaid ? 'Opłacona' : 'Nieopłacona' }}</mat-cell>
+    </ng-container>
+    @if (showStudentColumn()) {
+      <ng-container matColumnDef="student">
+        <mat-header-cell *matHeaderCellDef>ID ucznia</mat-header-cell>
+        <mat-cell *matCellDef="let lesson">{{ lesson.studentId }}</mat-cell>
+      </ng-container>
+    }
+    <ng-container matColumnDef="actions">
+      <mat-header-cell *matHeaderCellDef>Akcje</mat-header-cell>
+      <mat-cell *matCellDef="let lesson">
+        @if (!lesson.isPaid) {
+          <button
+            matButton
+            type="button"
+            [disabled]="pendingPaymentIds().includes(lesson.id)"
+            (click)="paymentConfirmationRequested.emit(lesson.id)"
+            [attr.aria-label]="
+              'Oznacz jako opłaconą lekcję z ' + (lesson.date | date: 'dd.MM.yyyy HH:mm')
+            "
+          >
+            Opłać
+          </button>
+        }
+        <button
+          matButton
+          type="button"
+          [disabled]="pendingPaymentIds().includes(lesson.id)"
+          (click)="deleteRequested.emit(lesson.id)"
+          [attr.aria-label]="'Usuń lekcję z ' + (lesson.date | date: 'dd.MM.yyyy HH:mm')"
+        >
+          Usuń
+        </button>
+      </mat-cell>
+    </ng-container>
+    <mat-header-row *matHeaderRowDef="displayedColumns()"></mat-header-row>
+    <mat-row *matRowDef="let row; columns: displayedColumns()"></mat-row>
+  </mat-table>
+} @else {
+  <mat-list>
+    <mat-list-item>{{ emptyMessage() }}</mat-list-item>
+  </mat-list>
+}

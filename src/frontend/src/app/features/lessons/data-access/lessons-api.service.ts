@@ -17,6 +17,10 @@ export class LessonsApiService {
     return this.http.post<Lesson>(this.url, lesson);
   }
 
+  confirmPayment(lessonId: number): Observable<Lesson> {
+    return this.http.post<Lesson>(`${this.url}/${lessonId}/confirm-payment`, null);
+  }
+
   delete(lessonId: number): Observable<void> {
     return this.http.delete<void>(`${this.url}/${lessonId}`);
   }
