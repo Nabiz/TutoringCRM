@@ -31,6 +31,23 @@ public class LessonsService : ILessonsService
         });
     }
 
+    public async Task<IEnumerable<LessonDto>> GetLessonsByDateRangeAsync(
+        DateTimeOffset from, DateTimeOffset to, CancellationToken cancellationToken = default)
+    {
+        var lessons = await _lessonsRepository.GetByDateRangeAsync(
+            from.UtcDateTime, to.UtcDateTime, cancellationToken);
+
+        return lessons.Select(lesson => new LessonDto
+        {
+            Id = lesson.Id,
+            Date = lesson.Date,
+            DurationInMinutes = lesson.DurationInMinutes,
+            Mode = lesson.Mode,
+            IsPaid = lesson.IsPaid,
+            StudentId = lesson.StudentId
+        });
+    }
+
     public async Task<IEnumerable<LessonDto>> GetLessonsByStudentIdAsync(int studentId, CancellationToken cancellationToken = default)
     {
         var lessons = await _lessonsRepository.GetByStudentIdAsync(studentId, cancellationToken);

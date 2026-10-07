@@ -21,6 +21,17 @@ public class LessonsRepository : ILessonsRepository
         return await _dbContext.Lessons.ToListAsync(cancellationToken);
     }
 
+    public async Task<IEnumerable<Lesson>> GetByDateRangeAsync(
+        DateTime fromUtc, DateTime toUtc, CancellationToken cancellationToken = default)
+    {
+        return await _dbContext.Lessons
+            .AsNoTracking()
+            .Where(lesson => lesson.Date >= fromUtc && lesson.Date < toUtc)
+            .OrderBy(lesson => lesson.Date)
+            .ThenBy(lesson => lesson.Id)
+            .ToListAsync(cancellationToken);
+    }
+
     public async Task<IEnumerable<Lesson>> GetByStudentIdAsync(int studentId, CancellationToken cancellationToken = default)
     {
         return await _dbContext.Lessons

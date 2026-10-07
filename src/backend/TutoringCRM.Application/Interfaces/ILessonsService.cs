@@ -5,6 +5,7 @@ namespace TutoringCRM.Application.Interfaces;
 public interface ILessonsService
 {
     Task<IEnumerable<LessonDto>> GetAllLessonsAsync(CancellationToken cancellationToken = default);
+    Task<IEnumerable<LessonDto>> GetLessonsByDateRangeAsync(DateTimeOffset from, DateTimeOffset to, CancellationToken cancellationToken = default);
     Task<IEnumerable<LessonDto>> GetLessonsByStudentIdAsync(int studentId, CancellationToken cancellationToken = default);
     Task<LessonDto?> GetLessonByIdAsync(int id, CancellationToken cancellationToken = default);
     Task<LessonDto> CreateLessonAsync(CreateLessonDto createLessonDto, CancellationToken cancellationToken = default);

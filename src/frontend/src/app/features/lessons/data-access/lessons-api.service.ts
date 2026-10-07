@@ -13,6 +13,12 @@ export class LessonsApiService {
     return this.http.get<Lesson[]>(this.url);
   }
 
+  getByDateRange(from: Date, to: Date): Observable<Lesson[]> {
+    return this.http.get<Lesson[]>(`${this.url}/range`, {
+      params: { from: from.toISOString(), to: to.toISOString() },
+    });
+  }
+
   create(lesson: CreateLessonRequest): Observable<Lesson> {
     return this.http.post<Lesson>(this.url, lesson);
   }

@@ -1,0 +1,66 @@
+<mat-card>
+  <mat-card-header>
+    <mat-card-title>
+      <button matIconButton type="button" aria-label="Poprzedni miesiąc" (click)="changeMonth(-1)">
+        ←
+      </button>
+      <span aria-live="polite">{{ monthLabel() }}</span>
+      <button matIconButton type="button" aria-label="Następny miesiąc" (click)="changeMonth(1)">
+        →
+      </button>
+    </mat-card-title>
+  </mat-card-header>
+  <mat-card-content>
+    @if (lessonsState().loading) {
+      <mat-progress-bar mode="indeterminate" aria-label="Pobieranie lekcji"></mat-progress-bar>
+    } @else if (lessonsState().error) {
+      <mat-card role="alert">
+        <mat-card-content>{{ lessonsState().error }}</mat-card-content>
+        <mat-card-actions>
+          <button matButton type="button" (click)="reloadLessons()">Spróbuj ponownie</button>
+        </mat-card-actions>
+      </mat-card>
+    }
+
+    <mat-grid-list cols="7" rowHeight="48px" aria-label="Dni tygodnia od poniedziałku">
+      @for (weekday of weekdays; track weekday) {
+        <mat-grid-tile>{{ weekday }}</mat-grid-tile>
+      }
+    </mat-grid-list>
+
+    <mat-grid-list
+      cols="7"
+      [rowHeight]="rowHeight()"
+      [attr.aria-label]="'Dni miesiąca: ' + monthLabel()"
+    >
+      @for (day of days(); track $index) {
+        <mat-grid-tile
+          [attr.aria-label]="day !== null ? dayLabel(day) : null"
+          [attr.aria-hidden]="day === null ? 'true' : null"
+        >
+          @if (day !== null) {
+            <mat-card>
+              <mat-card-header>
+                <mat-card-title>{{ day }}</mat-card-title>
+              </mat-card-header>
+              @if (lessonsByDay().get(day)?.length) {
+                <mat-card-content>
+                  <mat-list [attr.aria-label]="'Lekcje: ' + dayLabel(day)">
+                    @for (lesson of lessonsByDay().get(day) ?? []; track lesson.id) {
+                      <mat-list-item [lines]="2">
+                        <span matListItemTitle>{{ lesson.date | date: 'HH:mm' }}</span>
+                        <span matListItemLine
+                          >Uczeń #{{ lesson.studentId }} · {{ lesson.durationInMinutes }} min</span
+                        >
+                      </mat-list-item>
+                    }
+                  </mat-list>
+                </mat-card-content>
+              }
+            </mat-card>
+          }
+        </mat-grid-tile>
+      }
+    </mat-grid-list>
+  </mat-card-content>
+</mat-card>

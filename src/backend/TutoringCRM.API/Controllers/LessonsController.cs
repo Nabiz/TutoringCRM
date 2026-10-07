@@ -22,6 +22,17 @@ public class LessonsController : ControllerBase
         return Ok(lessons);
     }
 
+    [HttpGet("range")]
+    public async Task<ActionResult<IEnumerable<LessonDto>>> GetByDateRange(
+        [FromQuery] DateTimeOffset from,
+        [FromQuery] DateTimeOffset to,
+        CancellationToken cancellationToken)
+    {
+        var lessons = await _lessonsService.GetLessonsByDateRangeAsync(
+            from, to, cancellationToken);
+        return Ok(lessons);
+    }
+
     [HttpGet("{id:int}")]
     public async Task<IActionResult> GetById(int id, CancellationToken cancellationToken)
     {
