@@ -27,6 +27,9 @@
     </mat-card-header>
     <mat-card-actions>
       <a matButton routerLink="/students">Wróć do listy uczniów</a>
+      <button matButton="outlined" type="button" [disabled]="deleting()" (click)="deleteStudent()">
+        {{ deleting() ? 'Usuwanie...' : 'Usuń ucznia' }}
+      </button>
     </mat-card-actions>
   </mat-card>
 

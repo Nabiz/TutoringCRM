@@ -30,4 +30,14 @@ public class StudentsRepository : IStudentsRepository
         _dbContext.Students.Add(student);
         await _dbContext.SaveChangesAsync(cancellationToken);
     }
+
+    public async Task DeleteAsync(int id, CancellationToken cancellationToken = default)
+    {
+        var student = await _dbContext.Students.FirstOrDefaultAsync(s => s.Id == id, cancellationToken);
+        if (student != null)
+        {
+            _dbContext.Students.Remove(student);
+            await _dbContext.SaveChangesAsync(cancellationToken);
+        }
+    }
 }

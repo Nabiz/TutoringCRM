@@ -8,4 +8,5 @@ public interface IStudentsRepository
     Task<IEnumerable<Student>> GetAllAsync(CancellationToken cancellationToken = default);
     Task<Student?> GetByIdAsync(int id, CancellationToken cancellationToken = default);
     Task AddAsync(Student student, CancellationToken cancellationToken = default);
+    Task DeleteAsync(int id, CancellationToken cancellationToken = default);
 }

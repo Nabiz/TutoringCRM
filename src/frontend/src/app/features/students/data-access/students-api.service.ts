@@ -25,4 +25,8 @@ export class StudentsApiService {
   create(student: CreateStudentRequest): Observable<Student> {
     return this.http.post<Student>(this.url, student);
   }
+
+  delete(studentId: number): Observable<void> {
+    return this.http.delete<void>(`${this.url}/${studentId}`);
+  }
 }

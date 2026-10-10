@@ -50,4 +50,11 @@ public class StudentsController : ControllerBase
         var studentDto = await _studentsService.CreateStudentAsync(createStudentDto, cancellationToken);
         return CreatedAtAction(nameof(GetById), new { id = studentDto.Id }, studentDto);
     }
+
+    [HttpDelete("{id:int}")]
+    public async Task<IActionResult> DeleteStudent(int id, CancellationToken cancellationToken)
+    {
+        await _studentsService.DeleteStudentAsync(id, cancellationToken);
+        return NoContent();
+    }
 }

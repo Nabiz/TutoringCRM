@@ -1,6 +1,6 @@
 import { Component, OnInit, inject, signal } from '@angular/core';
 import { FormsModule } from '@angular/forms';
-import { ActivatedRoute, RouterLink } from '@angular/router';
+import { ActivatedRoute, Router, RouterLink } from '@angular/router';
 import { MatButtonModule } from '@angular/material/button';
 import { MatCardModule } from '@angular/material/card';
 import { MatCheckboxModule } from '@angular/material/checkbox';
@@ -50,12 +50,14 @@ export class StudentDetailsComponent implements OnInit {
   private readonly studentsApi = inject(StudentsApiService);
   private readonly lessonsApi = inject(LessonsApiService);
   private readonly route = inject(ActivatedRoute);
+  private readonly router = inject(Router);
   private readonly snackBar = inject(MatSnackBar);
 
   readonly student = signal<Student | null>(null);
   readonly lessons = signal<Lesson[]>([]);
   readonly pendingPaymentIds = signal<number[]>([]);
   readonly loading = signal(true);
+  readonly deleting = signal(false);
   readonly error = signal('');
 
   lessonForm: LessonForm = {
@@ -144,6 +146,32 @@ export class StudentDetailsComponent implements OnInit {
         },
         error: () => {
           this.snackBar.open('Nie udało się potwierdzić płatności. Spróbuj ponownie.', 'Zamknij', {
+            duration: 5000,
+          });
+        },
+      });
+  }
+
+  deleteStudent(): void {
+    const studentId = this.student()?.id;
+
+    if (!studentId || this.deleting()) {
+      return;
+    }
+
+    this.deleting.set(true);
+    this.studentsApi
+      .delete(studentId)
+      .pipe(finalize(() => this.deleting.set(false)))
+      .subscribe({
+        next: () => {
+          void this.router.navigate(['/students']);
+          this.snackBar.open('Poprawnie usunięto ucznia.', 'Zamknij', {
+            duration: 5000,
+          });
+        },
+        error: () => {
+          this.snackBar.open('Nie udało się usunąć ucznia. Spróbuj ponownie.', 'Zamknij', {
             duration: 5000,
           });
         },

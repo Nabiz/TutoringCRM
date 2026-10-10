@@ -67,4 +67,9 @@ public class StudentsService : IStudentsService
             Grade = student.Grade
         };
     }
+
+    public Task DeleteStudentAsync(int id, CancellationToken cancellationToken = default)
+    {
+        return _studentsRepository.DeleteAsync(id, cancellationToken);
+    }
 }
